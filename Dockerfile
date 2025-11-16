@@ -1,18 +1,25 @@
-FROM python:3.11-alpine AS python-builder
-
-RUN apk add --no-cache build-base jpeg-dev zlib-dev
-
-RUN pip install --no-cache-dir pillow onnxruntime rembg
-
-FROM n8nio/n8n:latest
+FROM python:3.11-slim
 
 USER root
 
-RUN apk add --no-cache python3 jpeg zlib libstdc++
+RUN pip install --no-cache-dir rembg
 
-COPY --from=python-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=python-builder /usr/local/bin/rembg /usr/local/bin/rembg
+RUN apt-get update && \
+    apt-get install -y curl gosu tini && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g n8n && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN ln -sf python3 /usr/bin/python
+RUN useradd -m -u 1000 node
 
 USER node
+
+WORKDIR /home/node
+
+ENV N8N_USER_FOLDER=/home/node/.n8n
+
+EXPOSE 5678
+
+CMD ["n8n"]
