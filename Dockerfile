@@ -12,12 +12,6 @@ RUN apk add --no-cache \
 
 RUN ln -sf python3 /usr/bin/python
 
-RUN pip3 install --no-cache-dir --upgrade pip
-
-RUN pip3 install --no-cache-dir pillow
-
-RUN pip3 install --no-cache-dir onnxruntime
-
-RUN pip3 install --no-cache-dir rembg
+RUN pip3 install --break-system-packages --no-cache-dir pillow onnxruntime rembg
 
 USER node
